@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+echo "Release linux version ..."
+mkdir -p bin/linux
+env GOOS=linux GOARCH=amd64 go build -o bin/linux/iamprototype .
+tar -C bin/linux/ -czf bin/linux/iamprototype-linux-amd64.tar.gz iamprototype
+
+echo "Release darwin version ..."
+mkdir -p bin/darwin
+env GOOS=darwin GOARCH=amd64 go build -o bin/darwin/iamprototype .
+tar -C bin/darwin/ -czf bin/darwin/iamprototype-darwin-amd64.tar.gz iamprototype
+
+
+ls -lh bin/*

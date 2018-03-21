@@ -1,0 +1,9 @@
+sudo: required
+language: go
+services:
+- docker
+go:
+- 1.9.3
+before_install:
+install:
+- go build . && ./release

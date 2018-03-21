@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+OUTPUT=${1:-bin/iamprototype}
+
+echo "Building iamprototype ..."
+mkdir -p bin
+go build -o $OUTPUT .

@@ -1,0 +1,10 @@
+FROM golang:1.9.3-alpine
+
+ENV GOPATH /go
+RUN apk --update add bash git
+
+RUN mkdir -p "$GOPATH/src/" "$GOPATH/bin" && chmod -R 777 "$GOPATH" && \
+    mkdir -p /go/src/github.com/6congyao/iamprototype && \
+    ln -s /go/src/github.com/6congyao/iamprototype /app
+
+WORKDIR /app

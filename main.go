@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
-	"iamproto/polices"
+	"iamprototype/polices"
 	"net/http"
 )
 

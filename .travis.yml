@@ -10,3 +10,10 @@ install:
 - go get -u github.com/ory/pagination
 - go get -u github.com/gin-gonic/gin
 - go build .
+script:
+- docker build --rm -t 6congyao/iamprototype .
+after_success:
+- if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_GO_VERSION" == "1.9.3" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  docker push 6congyao/iamprototype;
+  fi

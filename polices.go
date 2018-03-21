@@ -1,4 +1,4 @@
-package polices
+package main
 
 import (
 	. "github.com/ory/ladon"

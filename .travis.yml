@@ -9,4 +9,4 @@ install:
 - go get -u github.com/ory/ladon
 - go get -u github.com/ory/pagination
 - go get -u github.com/gin-gonic/gin
-- go build . && ./release
+- go build .

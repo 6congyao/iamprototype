@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
-	"iamprototype/polices"
 	"net/http"
 )
 
@@ -52,7 +51,8 @@ func request(c *gin.Context) {
 			Action:   json.Action,
 			Resource: json.Resource,
 		}
-		for _, pol := range polices.Polices {
+
+		for _, pol := range Polices {
 			warden.Manager.Create(pol)
 		}
 

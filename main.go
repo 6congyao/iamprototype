@@ -5,6 +5,7 @@ import (
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
 	"net/http"
+	"os"
 )
 
 // Binding from JSON
@@ -26,7 +27,9 @@ type RequestInput struct {
 	Subject string `json:"Principal" binding:"required"`
 }
 
+var hostname string
 func main() {
+	hostname, _ = os.Hostname()
 	router := gin.Default()
 
 	router.GET("/hi", getting)
@@ -36,7 +39,7 @@ func main() {
 }
 
 func getting(c *gin.Context) {
-	c.String(http.StatusOK, "Hello Lucas")
+	c.String(http.StatusOK, "Hello Lucas! This is from %s \n", hostname)
 }
 
 func request(c *gin.Context) {
@@ -66,14 +69,14 @@ func request(c *gin.Context) {
 			//switch et := errors.Cause(err).(type) {
 			//case *ladon.errorWithContext:
 			//	// handle specifically
-			c.JSON(http.StatusForbidden, gin.H{"status": err.Error()})
+			c.JSON(http.StatusForbidden, gin.H{"status": err.Error(), "from": hostname})
 			//default:
 			//	// unknown error
 			//	c.JSON(http.StatusForbidden, gin.H{"status": et})
 			//}
 
 		} else {
-			c.JSON(http.StatusOK, gin.H{"status": "Allow"})
+			c.JSON(http.StatusOK, gin.H{"status": "Allow", "from": hostname})
 		}
 
 	} else {

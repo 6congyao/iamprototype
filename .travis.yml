@@ -9,7 +9,7 @@ install:
 - go get -u github.com/ory/ladon
 - go get -u github.com/ory/pagination
 - go get -u github.com/gin-gonic/gin
-- go build .
+- go build . && ./release
 script:
 - docker build --rm -t 6congyao/iamprototype .
 after_success:

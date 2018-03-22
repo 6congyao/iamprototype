@@ -5,6 +5,7 @@ services:
 go:
 - 1.9.3
 before_install:
+- chmod +x release
 install:
 - go get -u github.com/ory/ladon
 - go get -u github.com/ory/pagination

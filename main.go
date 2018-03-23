@@ -9,54 +9,71 @@ import (
 )
 
 // Binding from JSON
-type Input struct {
-	Description string `form:"name" json:"name"`
-	Name        string `form:"name" json:"name" binding:"required"`
-	Age         int    `form:"age" json:"age" binding:"required"`
-	City        string `form:"city" json:"city" binding:"required"`
-}
-
-type RequestInput struct {
+type AuthRequestInput struct {
 	// Resource is the resource that access is requested to.
-	Resource string `json:"Resource" binding:"required"`
+	Resource string `json:"resource" binding:"required"`
 
 	// Action is the action that is requested on the resource.
-	Action string `json:"Action" binding:"required"`
+	Action string `json:"action" binding:"required"`
 
 	// Subejct is the subject that is requesting access.
-	Subject string `json:"Principal" binding:"required"`
+	Subject string `json:"principal" binding:"required"`
+}
+
+type PolicyRequestInput struct {
+	Description string `json:"description"`
+
+	Effect string `json:"effect" binding:"required"`
+
+	// Resource is the resource that access is requested to.
+	Resources string `json:"resource" binding:"required"`
+
+	// Action is the action that is requested on the resource.
+	Actions string `json:"action" binding:"required"`
+
+	// Subejct is the subject that is requesting access.
+	Subjects string `json:"principal" binding:"required"`
 }
 
 var hostname string
+var warden *ladon.Ladon
+
 func main() {
-	hostname, _ = os.Hostname()
+
+	iamInit()
 	router := gin.Default()
 
-	router.GET("/hi", getting)
-	router.POST("/request", request)
+	router.GET("/hi", greeting)
+	router.POST("/authorization", auth)
+	router.POST("/policy", createPolicy)
+	router.GET("/policy", getPolicy)
 
 	router.Run()
 }
 
-func getting(c *gin.Context) {
-	c.String(http.StatusOK, "Hello Lucas! This is from %s \n", hostname)
-}
-
-func request(c *gin.Context) {
-	json := &RequestInput{}
-	warden := &ladon.Ladon{
+func iamInit() {
+	hostname, _ = os.Hostname()
+	warden = &ladon.Ladon{
 		Manager: memory.NewMemoryManager(),
 	}
+	for _, pol := range Polices {
+		warden.Manager.Create(pol)
+	}
+}
+
+func greeting(c *gin.Context) {
+	c.String(http.StatusOK, "Greetings! This is from %s \n", hostname)
+}
+
+func auth(c *gin.Context) {
+	json := &AuthRequestInput{}
+
 
 	if err := c.ShouldBindJSON(json); err == nil {
 		request := &ladon.Request{
 			Subject:  json.Subject,
 			Action:   json.Action,
 			Resource: json.Resource,
-		}
-
-		for _, pol := range Polices {
-			warden.Manager.Create(pol)
 		}
 
 		err := warden.IsAllowed(request)
@@ -79,6 +96,26 @@ func request(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"status": "Allow", "from": hostname})
 		}
 
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+}
+
+func getPolicy(c *gin.Context) {
+	polices, err := warden.Manager.GetAll(100, 0)
+
+	if err == nil {
+		c.JSON(http.StatusOK, gin.H{"polices": polices})
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+}
+
+func createPolicy(c *gin.Context) {
+	json := &PolicyRequestInput{}
+	if err := c.ShouldBindJSON(json); err == nil {
+
+		c.JSON(http.StatusOK, gin.H{"status": "create successfully", "from": hostname})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}

@@ -44,7 +44,7 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/hi", greeting)
-	router.POST("/authorization", auth)
+	router.POST("/evaluation", auth)
 	router.POST("/policy", createPolicy)
 	router.GET("/policy", getPolicy)
 

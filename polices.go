@@ -39,18 +39,18 @@ var Polices = []Policy{
 	},
 	&DefaultPolicy{
 		ID:          "4",
-		Description: "This policy allows max to perform actions STS:* on any of the resources",
+		Description: "This policy allows lucas to perform actions STS:* on any of the resources",
 		Subjects:    []string{"users:lucas"},
 		Actions:     []string{"STS:<.*>"},
 		Resources:   []string{"<.*>"},
 		Effect:      AllowAccess,
 	},
-	//&DefaultPolicy{
-	//	ID:          "5",
-	//	Description: "This policy denies max to broadcast any of the resources",
-	//	Subjects:    []string{"users:lucas"},
-	//	Actions:     []string{"STS:AssumeRole"},
-	//	Resources:   []string{"<.*>"},
-	//	Effect:      DenyAccess,
-	//},
+	&DefaultPolicy{
+		ID:          "5",
+		Description: "This policy revoke all the access requests from lucas",
+		Subjects:    []string{"users:lucas"},
+		Actions:     []string{"<.*>"},
+		Resources:   []string{"<.*>"},
+		Effect:      DenyAccess,
+	},
 }

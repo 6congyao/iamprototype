@@ -3,9 +3,13 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ory/ladon"
-	"github.com/ory/ladon/manager/memory"
+	manager "github.com/ory/ladon/manager/sql"
 	"net/http"
 	"os"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"log"
+	"github.com/ory/ladon/manager/memory"
 )
 
 // Binding from JSON
@@ -21,18 +25,19 @@ type AuthRequestInput struct {
 }
 
 type PolicyRequestInput struct {
+	ID          string `json:"id" binding:"required"`
 	Description string `json:"description"`
 
 	Effect string `json:"effect" binding:"required"`
 
 	// Resource is the resource that access is requested to.
-	Resources string `json:"resource" binding:"required"`
+	Resources []string `json:"resource" binding:"required"`
 
 	// Action is the action that is requested on the resource.
-	Actions string `json:"action" binding:"required"`
+	Actions []string `json:"action" binding:"required"`
 
 	// Subejct is the subject that is requesting access.
-	Subjects string `json:"principal" binding:"required"`
+	Subjects []string `json:"principal"`
 }
 
 var hostname string
@@ -53,12 +58,35 @@ func main() {
 
 func iamInit() {
 	hostname, _ = os.Hostname()
+
 	warden = &ladon.Ladon{
-		Manager: memory.NewMemoryManager(),
+		Manager: postgresInit(),
 	}
+
 	for _, pol := range Polices {
 		warden.Manager.Create(pol)
 	}
+}
+
+func postgresInit() *manager.SQLManager {
+	db, err := sqlx.Open("postgres", "postgres://postgres:root@139.198.177.115:5432/postgres?sslmode=disable")
+
+	if err != nil {
+		log.Fatalf("Could not connect to database: %s", err)
+	}
+
+	sqlman := manager.NewSQLManager(db, nil)
+
+	n, err := sqlman.CreateSchemas("", "")
+	if err != nil {
+		log.Fatalf("Failed to create schemas: %s", err)
+	}
+	log.Printf("applied %d migrations", n)
+	return sqlman
+}
+
+func inmemoryInit() *memory.MemoryManager {
+	return memory.NewMemoryManager()
 }
 
 func greeting(c *gin.Context) {
@@ -114,7 +142,15 @@ func getPolicy(c *gin.Context) {
 func createPolicy(c *gin.Context) {
 	json := &PolicyRequestInput{}
 	if err := c.ShouldBindJSON(json); err == nil {
-
+		policy := &ladon.DefaultPolicy{
+			ID:          json.ID,
+			Description: json.Description,
+			Subjects:    json.Subjects,
+			Actions:     json.Actions,
+			Resources:   json.Resources,
+			Effect:      json.Effect,
+		}
+		warden.Manager.Create(policy)
 		c.JSON(http.StatusOK, gin.H{"status": "create successfully", "from": hostname})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

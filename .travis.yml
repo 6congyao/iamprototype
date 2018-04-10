@@ -8,7 +8,7 @@ before_install:
 - chmod +x release
 - chmod +x build
 install:
-- go get -u github.com/ory/ladon github.com/ory/pagination github.com/gin-gonic/gin
+- go get -u github.com/ory/ladon github.com/ory/pagination github.com/gin-gonic/gin github.com/jmoiron/sqlx github.com/rubenv/sql-migrate github.com/lib/pq
 - go build . && ./release
 script:
 - docker build --rm -t 6congyao/iamprototype .

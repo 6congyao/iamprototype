@@ -4,5 +4,5 @@ OUTPUT=${1:-bin/iamprototype}
 
 echo "Building iamprototype ..."
 mkdir -p bin
-go get -u github.com/ory/ladon github.com/ory/pagination github.com/gin-gonic/gin
+go get -u github.com/ory/ladon github.com/ory/pagination github.com/gin-gonic/gin github.com/jmoiron/sqlx github.com/rubenv/sql-migrate github.com/lib/pq
 go build -o $OUTPUT .
